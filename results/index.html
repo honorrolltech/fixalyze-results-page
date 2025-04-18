@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Your AI Automation Fix – Fixalyze</title>
+  <style>
+    body {
+      margin: 0;
+      padding: 0;
+      font-family: 'Inter', sans-serif;
+      background-color: #0f172a;
+      color: #ffffff;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      height: 100vh;
+      text-align: center;
+    }
+    h1 {
+      color: #22d3ee;
+    }
+    .container {
+      max-width: 600px;
+      padding: 20px;
+    }
+    .loading {
+      color: #94a3b8;
+    }
+    .error {
+      color: #ef4444;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>Fixalyze AI Solution</h1>
+    <p class="loading">Analyzing your results...</p>
+    <div id="ai-result"></div>
+  </div>
+
+  <script type="module">
+    import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm'
+
+    const supabaseUrl = 'https://your-project.supabase.co'; // Replace this
+    const supabaseKey = 'your-anon-key'; // Replace this
+    const supabase = createClient(supabaseUrl, supabaseKey);
+
+    const id = new URLSearchParams(window.location.search).get('id');
+    const resultContainer = document.getElementById('ai-result');
+    const loadingText = document.querySelector('.loading');
+
+    if (!id) {
+      loadingText.style.display = 'none';
+      resultContainer.innerHTML = "<p class='error'>Missing ID. Please go back and try again.</p>";
+    } else {
+      supabase
+        .from('ai_responses') // Change if your table name is different
+        .select('*')
+        .eq('id', id)
+        .single()
+        .then(({ data, error }) => {
+          loadingText.style.display = 'none';
+          if (error || !data) {
+            resultContainer.innerHTML = "<p class='error'>There was a problem fetching your fix. Please try again later.</p>";
+          } else {
+            resultContainer.innerHTML = `
+              <h3>Your Custom Automation Blueprint:</h3>
+              <p>${data.ai_response}</p>
+            `;
+          }
+        });
+    }
+  </script>
+</body>
+</html>
